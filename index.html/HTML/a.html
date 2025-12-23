@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密碼生成器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #10b981, #059669);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .generator {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+        }
+        h1 { text-align: center; color: #059669; margin-bottom: 30px; font-size: 24px; }
+        .password-display {
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .password-text {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            word-break: break-all;
+            color: #333;
+        }
+        .copy-btn {
+            padding: 10px 15px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover { background: #047857; }
+        .copy-btn.copied { background: #10b981; }
+        .strength-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s;
+        }
+        .strength-fill.weak { width: 33%; background: #ef4444; }
+        .strength-fill.medium { width: 66%; background: #f59e0b; }
+        .strength-fill.strong { width: 100%; background: #10b981; }
+        .option-group { margin-bottom: 25px; }
+        .option-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #e0e0e0;
+            border-radius: 4px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #059669;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .checkboxes { margin-bottom: 25px; }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .checkbox-item:hover { background: #e8e8e8; }
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #059669;
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .generate-btn:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+    <div class="generator">
+        <h1>🔐 密碼生成器</h1>
+        <div class="password-display">
+            <span class="password-text" id="password">點擊生成密碼</span>
+            <button class="copy-btn" onclick="copyPassword()">複製</button>
+        </div>
+        <div class="strength-bar">
+            <div class="strength-fill" id="strengthFill"></div>
+        </div>
+        <div class="option-group">
+            <div class="option-label">
+                <span>密碼長度</span>
+                <span id="lengthValue">16</span>
+            </div>
+            <input type="range" id="length" min="8" max="32" value="16" oninput="updateLength()">
+        </div>
+        <div class="checkboxes">
+            <label class="checkbox-item">
+                <input type="checkbox" id="uppercase" checked>
+                <span>包含大寫字母 (A-Z)</span>
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="lowercase" checked>
+                <span>包含小寫字母 (a-z)</span>
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="numbers" checked>
+                <span>包含數字 (0-9)</span>
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="symbols">
+                <span>包含特殊符號 (!@#$%)</span>
+            </label>
+        </div>
+        <button class="generate-btn" onclick="generatePassword()">生成密碼</button>
+    </div>
+    <script>
+        const charSets = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+
+        function updateLength() {
+            document.getElementById('lengthValue').textContent = document.getElementById('length').value;
+        }
+
+        function generatePassword() {
+            const length = parseInt(document.getElementById('length').value);
+            let chars = '';
+            
+            if (document.getElementById('uppercase').checked) chars += charSets.uppercase;
+            if (document.getElementById('lowercase').checked) chars += charSets.lowercase;
+            if (document.getElementById('numbers').checked) chars += charSets.numbers;
+            if (document.getElementById('symbols').checked) chars += charSets.symbols;
+            
+            if (!chars) {
+                alert('請至少選擇一種字元類型！');
+                return;
+            }
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            document.getElementById('password').textContent = password;
+            updateStrength(password);
+        }
+
+        function updateStrength(password) {
+            const fill = document.getElementById('strengthFill');
+            let strength = 0;
+            
+            if (password.length >= 12) strength++;
+            if (password.length >= 16) strength++;
+            if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            fill.className = 'strength-fill';
+            if (strength <= 2) fill.classList.add('weak');
+            else if (strength <= 3) fill.classList.add('medium');
+            else fill.classList.add('strong');
+        }
+
+        function copyPassword() {
+            const password = document.getElementById('password').textContent;
+            if (password === '點擊生成密碼') return;
+            
+            navigator.clipboard.writeText(password).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '已複製！';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '複製';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        generatePassword();
+    </script>
+</body>
+</html>

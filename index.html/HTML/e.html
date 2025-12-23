@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番茄鐘計時器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            text-align: center;
+            color: white;
+        }
+        h1 { margin-bottom: 40px; font-size: 32px; }
+        .timer-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 40px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .timer-circle::before {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        .time-display {
+            font-size: 72px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        .status {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .btn-start { background: white; color: #dc2626; }
+        .btn-pause { background: #fbbf24; color: #92400e; }
+        .btn-reset { background: rgba(255,255,255,0.2); color: white; }
+        .modes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .mode-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: white;
+            color: #dc2626;
+            border-color: white;
+        }
+        .sessions {
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍅 番茄鐘計時器</h1>
+        <div class="timer-circle">
+            <div class="time-display" id="timeDisplay">25:00</div>
+            <div class="status" id="status">準備開始</div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn" onclick="startTimer()">開始</button>
+            <button class="btn btn-reset" onclick="resetTimer()">重置</button>
+        </div>
+        <div class="modes">
+            <button class="mode-btn active" onclick="setMode(25, this)">工作 25分</button>
+            <button class="mode-btn" onclick="setMode(5, this)">短休息 5分</button>
+            <button class="mode-btn" onclick="setMode(15, this)">長休息 15分</button>
+        </div>
+        <div class="sessions" id="sessions">已完成 0 個番茄</div>
+    </div>
+    <script>
+        let timeLeft = 25 * 60; // 秒
+        let timerId = null;
+        let isRunning = false;
+        let sessions = 0;
+        let currentMode = 25;
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timeDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            const btn = document.getElementById('startBtn');
+            
+            if (isRunning) {
+                // 暫停
+                clearInterval(timerId);
+                isRunning = false;
+                btn.textContent = '繼續';
+                btn.className = 'btn btn-start';
+                document.getElementById('status').textContent = '已暫停';
+            } else {
+                // 開始
+                isRunning = true;
+                btn.textContent = '暫停';
+                btn.className = 'btn btn-pause';
+                document.getElementById('status').textContent = '專注中...';
+                
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        isRunning = false;
+                        btn.textContent = '開始';
+                        btn.className = 'btn btn-start';
+                        
+                        if (currentMode === 25) {
+                            sessions++;
+                            document.getElementById('sessions').textContent = `已完成 ${sessions} 個番茄`;
+                        }
+                        
+                        document.getElementById('status').textContent = '時間到！';
+                        alert('⏰ 時間到！');
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerId);
+            isRunning = false;
+            timeLeft = currentMode * 60;
+            updateDisplay();
+            document.getElementById('startBtn').textContent = '開始';
+            document.getElementById('startBtn').className = 'btn btn-start';
+            document.getElementById('status').textContent = '準備開始';
+        }
+
+        function setMode(minutes, btn) {
+            currentMode = minutes;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            resetTimer();
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>

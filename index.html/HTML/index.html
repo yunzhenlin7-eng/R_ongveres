@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>側邊欄 + 橫幅布局</title>
+<style>
+    body {
+        margin: 0;
+        font-family: "Noto Sans TC", sans-serif;
+        background: #eef0f5;
+        display: flex;
+    }
+
+    /* ----側邊欄---- */
+    .sidebar {
+        width: 240px;
+        background: #1e2a38;
+        color: #fff;
+        height: 100vh;
+        padding-top: 20px;
+        transition: width 0.25s ease;
+        overflow: hidden;
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+
+    .sidebar.collapsed {
+        width: 70px;
+    }
+
+    /* 頭像 */
+    .profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 20px;
+        margin-bottom: 25px;
+        transition: all 0.25s ease;
+    }
+
+    .profile img {
+        border-radius: 50%;
+        transition: width 0.25s ease, height 0.25s ease;
+    }
+
+    .sidebar.collapsed .profile span {
+        display: none;
+    }
+
+    /* 收合時改變頭像尺寸 */
+    .sidebar:not(.collapsed) .profile img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .sidebar.collapsed .profile img {
+        width: 50px;
+        height: 50px;
+        margin-left: 10px;
+    }
+
+    /* 導航 */
+    .menu {
+        margin-top: 10px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-radius: 8px;
+        margin: 5px 10px;
+    }
+
+    .menu-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar.collapsed .menu span {
+        display: none;
+    }
+
+    /* ---- 主內容 ---- */
+    .content {
+        margin-left: 260px;
+        padding: 30px;
+        width: calc(100% - 260px);
+        transition: margin-left 0.25s ease;
+    }
+
+    .sidebar.collapsed ~ .content {
+        margin-left: 90px;
+        width: calc(100% - 90px);
+    }
+
+    /* 白色卡片容器 */
+    .banner-card {
+        background: white;
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 120%;            /* 🔥 這裡縮小寬度 */
+        max-width: 700px;      /* 🔥 最大寬度限制 */
+        margin: auto;          /* 最上面最上面 */
+    }
+
+    .banner-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        display: block;
+    }
+
+    .banner-text {
+        margin-top: 12px;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    /* 收合按鈕 */
+    .toggle-btn {
+        position: absolute;
+        right: -15px;
+        top: 15px;
+        background: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+</style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="toggle-btn" onclick="toggleSidebar()">❮</div>
+
+        <div class="profile">
+            <img src="01.png" alt="profile" />
+            <span style="font-size: 15px;">用戶名稱</span>
+        </div>
+
+        <div class="menu">
+            <div class="menu-item">🏠 <span>儀表板</span></div>
+            <div class="menu-item">📅 <span>日曆</span></div>
+            <div class="menu-item">🔔 <span>通知</span></div>
+            <div class="menu-item">📊 <span>分析</span></div>
+            <div class="menu-item">📘 <span>書籤</span></div>
+            <div class="menu-item">⚙️ <span>設定</span></div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="banner-card">
+            <img src="02.png" alt="banner" />
+            <div class="banner-text">
+                這裡可以放置橫幅的補充說明，例如：公告、介紹文字、提醒事項⋯⋯。
+            </div>
+        </div>
+    </div>
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("collapsed");
+}
+</script>
+</body>
+</html>
